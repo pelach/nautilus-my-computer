@@ -49,15 +49,14 @@ Nothing is written outside your home directory.
 
 ## Features
 
-- **All your storage in one place** — local drives, USB sticks, phones, network mounts, and removable media grouped by type.
-- **Usage bars** — at-a-glance capacity for every mounted volume.
-- **Mount & eject** — mount, unmount, and eject volumes directly from the panel without leaving Files.
-- **Live refresh** — the panel updates automatically when drives are connected or disconnected.
-- **Fully native** — follows your GNOME accent color, icon theme, and dark/light mode with no extra configuration.
-- **Customizable bars** — choose between accent color, a flat custom color, or a two-stop gradient for the usage bars.
-- **Start on My Computer** — optionally open GNOME Files directly on the My Computer panel every time.
-- **Right-click context menu** — mount, unmount, and eject volumes directly from a context menu on each card.
-
+- **All your storage in one place:** local drives, USB sticks, phones, network mounts, and removable media grouped by type.
+- **Usage bars:** at-a-glance capacity for every mounted volume.
+- **Mount & eject:** mount, unmount, and eject volumes directly from the panel without leaving Files.
+- **Live refresh:** the panel updates automatically when drives are connected or disconnected.
+- **Fully native:** follows your GNOME accent color, icon theme, and dark/light mode with no extra configuration.
+- **Customizable bars:** choose between GNOME accent color, a custom color, or a custom gradient for the usage bars.
+- **Start on My Computer:** choose to open GNOME Files directly on the My Computer panel every time.
+- **Right-click context menu:** open, open in new tab, open in new window, mount, unmount, and eject volumes directly from a native-feel context menu.
 
 ## Style
 
