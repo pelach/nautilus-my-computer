@@ -15,14 +15,35 @@ gi.require_version("GObject", "2.0")
 gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gdk, Gio, GLib, GObject, Gtk, Nautilus
 
-_ = gettext.translation("nautilus", fallback=True).gettext
+_custom_translation = None
+_localedir = os.path.expanduser("~/.local/share/locale")
+try:
+    _custom_translation = gettext.translation("nautilus-my-computer", localedir=_localedir)
+except Exception:
+    pass
+
+_nautilus_translation = None
+try:
+    _nautilus_translation = gettext.translation("nautilus")
+except Exception:
+    pass
+
+def _(text: str) -> str:
+    if _custom_translation is not None:
+        val = _custom_translation.gettext(text)
+        if val != text:
+            return val
+    if _nautilus_translation is not None:
+        return _nautilus_translation.gettext(text)
+    return text
+
 
 DEBUG_LOG = os.environ.get("NAUTILUS_MY_COMPUTER_DEBUG", "").lower() in ("1", "true", "yes")
 DEBUG_LOG_PREFIX = "MyComputer"  # prefix for all debug lines, to make them easy to filter in logs
 
 # ── Extension metadata (keep in sync with pyproject.toml) ────────────────────
 EXT_NAME        = "My Computer for Nautilus"
-EXT_VERSION     = "0.1.0"
+EXT_VERSION     = "0.2.0"
 EXT_AUTHOR      = "Yann Masoch"
 EXT_LICENSE     = "MIT"
 EXT_GITHUB      = "https://github.com/yannmasoch/nautilus-my-computer"
@@ -30,6 +51,7 @@ EXT_GITHUB      = "https://github.com/yannmasoch/nautilus-my-computer"
 
 DISKS_URI       = "computer:///"
 BOOKMARK_LABEL  = "Computer"
+BOOKMARK_LABEL_LOCAL = _(BOOKMARK_LABEL)
 BOOKMARKS_FILE  = os.path.expanduser("~/.config/gtk-3.0/bookmarks")
 COMPUTER_ICON   = "computer-symbolic"  # icon used in sidebar and path bar
 MENU_ITEM_LABEL = "My Computer Settings"   # label in Nautilus hamburger menu
@@ -74,7 +96,7 @@ try:
     )
     _LOCATION_TITLE = _info.get_display_name()
 except Exception:
-    _LOCATION_TITLE = BOOKMARK_LABEL
+    _LOCATION_TITLE = BOOKMARK_LABEL_LOCAL
 
 # Localized title Nautilus shows when browsing the user's home folder.
 # Used to distinguish a "default new window" (opened at Home) from a window
@@ -297,7 +319,7 @@ def _read_dirty_bytes() -> int:
     return dirty + writeback
 
 
-_log(f"Configured URI title: '{_LOCATION_TITLE}' (Bookmark: '{BOOKMARK_LABEL}')")
+_log(f"Configured URI title: '{_LOCATION_TITLE}' (Bookmark: '{BOOKMARK_LABEL}', Local: '{BOOKMARK_LABEL_LOCAL}')")
 
 
 def _get_gsettings() -> Gio.Settings | None:
@@ -557,7 +579,7 @@ def _ensure_bookmark() -> None:
     # GTK bookmarks are stored as "destination-uri optional-label". We key our
     # sidebar bookmark detection off the destination URI, not the label, so user
     # renames remain stable.
-    lines.insert(0, f"{DISKS_URI} {BOOKMARK_LABEL}")
+    lines.insert(0, f"{DISKS_URI} {BOOKMARK_LABEL_LOCAL}")
     with open(BOOKMARKS_FILE, "w") as f:
         f.write("\n".join(lines) + "\n")
 
@@ -1544,7 +1566,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
                 by_group[gkey] = items
 
 
-        group_labels = {key: lbl for key, lbl in _GROUPS}
+        group_labels = {key: _(lbl) for key, lbl in _GROUPS}
         size_group = Gtk.SizeGroup(mode=Gtk.SizeGroupMode.HORIZONTAL)
 
         for group_key, _group_label in _GROUPS:
@@ -1655,7 +1677,10 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
             bar.set_name(bname)
             if v > 0:
                 bar_geom[bname] = v
-            sub_text = f"{_format_size(m.free)} free of {_format_size(m.total)}"
+            sub_text = _("{free} free of {total}").format(
+                free=_format_size(m.free),
+                total=_format_size(m.total)
+            )
         else:
             bar.set_visible(False)
             sub_text = nav_uri
@@ -2098,7 +2123,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
 
         mode_row = Adw.ComboRow()
         mode_row.set_title(_("Color mode"))
-        mode_model = Gtk.StringList.new(["System accent", "Custom color", "Gradient"])
+        mode_model = Gtk.StringList.new([_("System accent"), _("Custom color"), _("Gradient")])
         mode_row.set_model(mode_model)
         _mode_map = ["accent", "flat", "gradient"]
         current_mode = self._gsettings.get_string("color-mode")
@@ -2165,8 +2190,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
         bookmark_group = Adw.PreferencesGroup()
         bookmark_group.set_title(_("Sidebar Bookmark"))
         bookmark_group.set_description(_(
-            'The “Computer” bookmark gives access to this panel from the sidebar. '
-            "Restore it here if you accidentally removed it."
+            "The \"Computer\" bookmark gives access to this panel from the sidebar. Restore it here if you accidentally removed it."
         ))
         page.add(bookmark_group)
 
@@ -2474,7 +2498,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
 
     def _subscribe_pathbar_labels(self, pathbar) -> None:
         """Connect notify::label on every GtkLabel inside *pathbar*."""
-        target_labels = {BOOKMARK_LABEL, _LOCATION_TITLE}
+        target_labels = {BOOKMARK_LABEL, BOOKMARK_LABEL_LOCAL, _LOCATION_TITLE}
         for w in _all_widgets(pathbar):
             if isinstance(w, Gtk.Label) and not getattr(w, "_diskinfo_label_watched", False):
                 w._diskinfo_label_watched = True
@@ -2492,7 +2516,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
         if pathbar_or_win is None:
             return False
 
-        target_labels = {BOOKMARK_LABEL, _LOCATION_TITLE}
+        target_labels = {BOOKMARK_LABEL, BOOKMARK_LABEL_LOCAL, _LOCATION_TITLE}
         for w in _all_widgets(pathbar_or_win):
             if not isinstance(w, Gtk.Label):
                 continue

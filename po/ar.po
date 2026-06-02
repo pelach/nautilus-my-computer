@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: nautilus-my-computer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-02 00:00+0300\n"
+"PO-Revision-Date: 2026-06-02 00:00+0300\n"
+"Last-Translator: Yann Masoch\n"
+"Language-Team: Arabic\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+
+msgid "My Computer Settings"
+msgstr "إعدادات جهاز الكمبيوتر"
+
+msgid "System"
+msgstr "النظام"
+
+msgid "Devices and Drives"
+msgstr "الأجهزة ومحركات الأقراص"
+
+msgid "Removable Devices"
+msgstr "الأجهزة القابلة للإزالة"
+
+msgid "Network Volumes"
+msgstr "مجلدات الشبكة"
+
+msgid "Not mounted"
+msgstr "غير موصول"
+
+msgid "Format…"
+msgstr "تهيئة…"
+
+msgid "General"
+msgstr "عام"
+
+msgid "Start on Computer view"
+msgstr "البدء في عرض الكمبيوتر"
+
+msgid "Show the disk panel when Nautilus opens"
+msgstr "إظهار لوحة الأقراص عند فتح ناوتيلوس"
+
+msgid "Disk Usage Color"
+msgstr "لون استخدام القرص"
+
+msgid "Color mode"
+msgstr "وضع اللون"
+
+msgid "System accent"
+msgstr "لون النظام المميز"
+
+msgid "Custom color"
+msgstr "لون مخصص"
+
+msgid "Gradient"
+msgstr "تدرج لوني"
+
+msgid "Color"
+msgstr "اللون"
+
+msgid "Start color"
+msgstr "لون البداية"
+
+msgid "End color"
+msgstr "لون النهاية"
+
+msgid "Sidebar Bookmark"
+msgstr "علامة الشريط الجانبي"
+
+msgid "The \"Computer\" bookmark gives access to this panel from the sidebar. Restore it here if you accidentally removed it."
+msgstr "تتيح علامة \"جهاز الكمبيوتر\" إمكانية الوصول إلى هذه اللوحة من الشريط الجانبي. استعدها من هنا إذا قمت بإزالتها دون قصد."
+
+msgid "Restore \"Computer\" bookmark"
+msgstr "استعادة علامة \"جهاز الكمبيوتر\""
+
+msgid "Restore"
+msgstr "استعادة"
+
+msgid "Added ✓"
+msgstr "تمت الإضافة ✓"
+
+msgid "About"
+msgstr "حول"
+
+msgid "Extension"
+msgstr "الامتداد"
+
+msgid "Version"
+msgstr "الإصدار"
+
+msgid "Author"
+msgstr "المؤلف"
+
+msgid "License"
+msgstr "الترخيص"
+
+msgid "Source code"
+msgstr "شفرة المصدر"
+
+msgid "GitHub ↗"
+msgstr "جيت هاب ↗"
+
+msgid "{free} free of {total}"
+msgstr "متوفر {free} من {total}"
+
+msgid "Computer"
+msgstr "جهاز الكمبيوتر"
+
+msgid "Mount"
+msgstr "ضم"
+
+msgid "Unmount"
+msgstr "فصل"
+
+msgid "Eject"
+msgstr "إخراج"
+
+msgid "Open"
+msgstr "افتح"
+
+msgid "Open in New Tab"
+msgstr "افتح في علامة تبويب جديدة"
+
+msgid "Open in New Window"
+msgstr "افتح في نافذة جديدة"
+
+msgid "Properties"
+msgstr "الخصائص"

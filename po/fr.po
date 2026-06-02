@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: nautilus-my-computer\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-06-01 00:00+0200\n"
+"PO-Revision-Date: 2026-06-01 00:00+0200\n"
+"Last-Translator: Yann Masoch\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+
+msgid "My Computer Settings"
+msgstr "Paramètres de My Computer"
+
+msgid "System"
+msgstr "Système"
+
+msgid "Devices and Drives"
+msgstr "Appareils et disques"
+
+msgid "Removable Devices"
+msgstr "Périphériques amovibles"
+
+msgid "Network Volumes"
+msgstr "Volumes réseau"
+
+msgid "Not mounted"
+msgstr "Non monté"
+
+msgid "Format…"
+msgstr "Formater…"
+
+msgid "General"
+msgstr "Général"
+
+msgid "Start on Computer view"
+msgstr "Démarrer sur la vue Ordinateur"
+
+msgid "Show the disk panel when Nautilus opens"
+msgstr "Afficher le panneau disques à l'ouverture de Nautilus"
+
+msgid "Disk Usage Color"
+msgstr "Couleur d'utilisation du disque"
+
+msgid "Color mode"
+msgstr "Mode couleur"
+
+msgid "System accent"
+msgstr "Couleur d'accentuation du système"
+
+msgid "Custom color"
+msgstr "Couleur personnalisée"
+
+msgid "Gradient"
+msgstr "Dégradé"
+
+msgid "Color"
+msgstr "Couleur"
+
+msgid "Start color"
+msgstr "Couleur de début"
+
+msgid "End color"
+msgstr "Couleur de fin"
+
+msgid "Sidebar Bookmark"
+msgstr "Signet"
+
+msgid "The \"Computer\" bookmark gives access to this panel from the sidebar. Restore it here if you accidentally removed it."
+msgstr "Le signet « Ordinateur » donne accès à ce panneau depuis les signets. Restaurez-le ici si vous l'avez supprimé par erreur."
+
+msgid "Restore \"Computer\" bookmark"
+msgstr "Restaurer le signet « Ordinateur »"
+
+msgid "Restore"
+msgstr "Restaurer"
+
+msgid "Added ✓"
+msgstr "Ajouté ✓"
+
+msgid "About"
+msgstr "À propos"
+
+msgid "Extension"
+msgstr "Extension"
+
+msgid "Version"
+msgstr "Version"
+
+msgid "Author"
+msgstr "Auteur"
+
+msgid "License"
+msgstr "Licence"
+
+msgid "Source code"
+msgstr "Code source"
+
+msgid "GitHub ↗"
+msgstr "GitHub ↗"
+
+msgid "{free} free of {total}"
+msgstr "{free} disponible sur {total}"
+
+msgid "Computer"
+msgstr "Ordinateur"
+
+msgid "Mount"
+msgstr "Monter"
+
+msgid "Unmount"
+msgstr "Démonter"
+
+msgid "Eject"
+msgstr "Éjecter"
+
+msgid "Open"
+msgstr "Ouvrir"
+
+msgid "Open in New Tab"
+msgstr "Ouvrir dans un nouvel onglet"
+
+msgid "Open in New Window"
+msgstr "Ouvrir dans une nouvelle fenêtre"
+
+msgid "Properties"
+msgstr "Propriétés"
