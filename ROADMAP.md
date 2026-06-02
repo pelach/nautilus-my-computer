@@ -11,9 +11,11 @@ This roadmap reflects planned fixes, features, and improvements. It is subject t
 - feat: French translations
 - fix: Nautilus inherits terminal locale on restart instead of GNOME session locale
 
-## v0.2.1 — Disk cards bug fixes
+## v0.2.1 — Bug fixes
 - fix: disk cards not updating when drives are connected or disconnected
 - fix: level bar length regression -> longer
+- fix: installer does not abort on missing release
+- fix: missing icon for mounted ISO images
 
 ## v0.2.2 — Bookmark naming
 - feat: bookmark Computer name not follow the active language
