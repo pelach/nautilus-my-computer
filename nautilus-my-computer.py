@@ -76,15 +76,15 @@ _REFRESH_DEBOUNCE_MS = 300  # coalesce rapid mount/unmount/plug events
 _WIN_INIT_RETRY_MS = 20  # retry interval while waiting for NautilusWindow widget tree
 _NAV_RETRY_MS = 60  # retry interval while navigating to computer:///
 _TAB_WAIT_MS = 50  # retry interval while waiting for a new tab slot
-_USAGE_GATE_MS = 1000  # local worker idle cadence: try a statvfs sweep this often, but skip while the disk is busy
-_USAGE_POLL_FAST_MS = 250  # local worker cadence while writes are buffered (Dirty+Writeback elevated) — catch the flush promptly
+_USAGE_GATE_MS = 1000  # idle cadence: try a statvfs sweep this often, skip while disk is busy
+_USAGE_POLL_FAST_MS = 250  # fast cadence while writes are buffered (Dirty+Writeback elevated)
 _USAGE_BUSY_RATIO = (
     0.50  # io_ticks delta / interval above this == disk busy → skip statvfs (avoid I/O contention)
 )
 
 _DIRTY_ACTIVE_THRESHOLD = (
     4 * 1000 * 1000
-)  # /proc/meminfo Dirty+Writeback ≥ this == writes buffered → poll fast (above resting journal noise)
+)  # /proc/meminfo Dirty+Writeback ≥ this → poll fast (above resting journal noise ~1–2 MB)
 _USAGE_POLL_NETWORK_MS = 5000  # async D-Bus usage poll interval for GVfs/network mounts
 _SORT_POLL_MS = 250  # gvfs sort-metadata poll cadence (only while header is hovered)
 _STALE_RELEASE_FRAMES = 2  # keep detached panel generations alive across this many frame ticks
@@ -355,7 +355,8 @@ def _read_dirty_bytes() -> int:
 
 
 _log(
-    f"Configured URI title: '{_LOCATION_TITLE}' (Bookmark: '{BOOKMARK_LABEL}', Local: '{BOOKMARK_LABEL_LOCAL}')"
+    f"Configured URI title: '{_LOCATION_TITLE}'"
+    f" (Bookmark: '{BOOKMARK_LABEL}', Local: '{BOOKMARK_LABEL_LOCAL}')"
 )
 
 
@@ -620,8 +621,8 @@ def _ensure_bookmark() -> None:
     lines: list[str] = []
     if os.path.exists(BOOKMARKS_FILE):
         with open(BOOKMARKS_FILE) as f:
-            lines = [l for l in f.read().splitlines() if l.strip()]
-    if any(l.split(None, 1)[0] == DISKS_URI for l in lines):
+            lines = [line for line in f.read().splitlines() if line.strip()]
+    if any(line.split(None, 1)[0] == DISKS_URI for line in lines):
         return  # already present — preserve user's custom label, don't overwrite
     # GTK bookmarks are stored as "destination-uri optional-label". We key our
     # sidebar bookmark detection off the destination URI, not the label, so user
@@ -755,7 +756,7 @@ def _pin_icon(img: Gtk.Image, icon_name: str) -> None:
     def _on_changed(image: Gtk.Image, _pspec) -> None:
         if image._diskinfo_restoring:
             return  # we triggered this notification ourselves – skip
-        # Detect overwrite: if the storage type is not ICON_NAME, name is wrong, or visibility is dropped.
+        # Detect overwrite: storage type not ICON_NAME, wrong name, or visibility dropped.
         if (
             getattr(image, "get_storage_type", lambda: None)() != Gtk.ImageType.ICON_NAME
             or image.get_icon_name() != icon_name
@@ -1012,9 +1013,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
                 self._init_window(win)
         if toplevels and not found_any and not self._windows:
             names = [type(w).__name__ for w in toplevels]
-            _log(
-                f"check_new_windows: no NautilusWindow found among {names} — class may have been renamed"
-            )
+            _log(f"check_new_windows: no NautilusWindow found among {names} — class renamed?")
         return True
 
     def _on_window_destroyed(self, win: Gtk.Window) -> None:
@@ -1164,9 +1163,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
             if toolbar_view:
                 for w in _all_widgets(toolbar_view):
                     if isinstance(w, Gtk.MenuButton) and w.get_icon_name() != "open-menu-symbolic":
-                        _log(
-                            "_find_sort_button: matched via structural navigation (NautilusViewControls drift)"
-                        )
+                        _log("_find_sort_button: matched via structural nav (NautilusViewControls)")
                         return w
         return None
 
@@ -1444,9 +1441,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
                 split_view = w
                 break
         if not split_view:
-            _log(
-                "inject_stack: Adw.OverlaySplitView not found — Nautilus widget tree may have changed"
-            )
+            _log("inject_stack: Adw.OverlaySplitView not found — widget tree may have changed")
             return False
 
         toolbar_view = None
@@ -2299,7 +2294,8 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
         bookmark_group.set_title(_("Sidebar Bookmark"))
         bookmark_group.set_description(
             _(
-                'The "Computer" bookmark gives access to this panel from the sidebar. Restore it here if you accidentally removed it.'
+                'The "Computer" bookmark gives access to this panel from the sidebar.'
+                " Restore it here if you accidentally removed it."
             )
         )
         page.add(bookmark_group)
@@ -2308,7 +2304,7 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
             if not os.path.exists(BOOKMARKS_FILE):
                 return False
             with open(BOOKMARKS_FILE) as f:
-                return any(l.split(None, 1)[0] == DISKS_URI for l in f if l.strip())
+                return any(line.split(None, 1)[0] == DISKS_URI for line in f if line.strip())
 
         bookmark_row = Adw.ActionRow()
         bookmark_row.set_title(_('Restore "Computer" bookmark'))
