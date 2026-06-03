@@ -64,7 +64,6 @@ STACK_DISKINFO = "diskinfo"  # name of our custom panel child in our Gtk.Stack
 METADATA_SORT_BY = "metadata::nautilus-icon-view-sort-by"
 METADATA_SORT_REVERSED = "metadata::nautilus-icon-view-sort-reversed"
 
-ACTION_PREFS = "my-computer-prefs"
 DBUS_FILE_MANAGER = "org.freedesktop.FileManager1"
 DBUS_PATH_FILE_MANAGER = "/org/freedesktop/FileManager1"
 
@@ -685,30 +684,6 @@ def _all_widgets(widget):
         child = child.get_next_sibling()
 
 
-def _iter_children(widget):
-    if not widget:
-        return
-    child = widget.get_first_child()
-    while child:
-        yield child
-        child = child.get_next_sibling()
-
-
-def _menu_has_action(model, action_name) -> bool:
-    """Recursively check whether a GMenuModel already contains *action_name*.
-    Walks sections and submenus so dedup works regardless of menu nesting."""
-    str_type = GLib.VariantType("s")
-    for i in range(model.get_n_items()):
-        av = model.get_item_attribute_value(i, Gio.MENU_ATTRIBUTE_ACTION, str_type)
-        if av is not None and av.get_string() == action_name:
-            return True
-        for link in (Gio.MENU_LINK_SECTION, Gio.MENU_LINK_SUBMENU):
-            sub = model.get_item_link(i, link)
-            if sub is not None and _menu_has_action(sub, action_name):
-                return True
-    return False
-
-
 def _find_widget(root, *, buildable_id=None, class_name=None, css_class=None, site=""):
     """Find a widget by layered fallback: buildable_id → class_name → css_class.
 
@@ -959,52 +934,6 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
 
         GLib.timeout_add(_WIN_INIT_RETRY_MS, _try)
 
-    def _inject_main_menu(self, win: Gtk.Window) -> None:
-        app = Gio.Application.get_default()
-        if not app:
-            return
-        # Register the app action once.
-        if not app.has_action(ACTION_PREFS):
-            act = Gio.SimpleAction.new(ACTION_PREFS, None)
-            act.connect("activate", lambda *_: self._launch_prefs(app.get_active_window()))
-            app.add_action(act)
-        # Locate the hamburger among the window's GtkMenuButtons.
-        # Tier 1: icon name 'open-menu-symbolic' (unique, proven).
-        # Tier 2: css class 'popup' — only the hamburger carries it (the
-        #   view-controls button is a GtkToggleButton with 'image-button'/'toggle'),
-        #   so it is a safe fallback if Nautilus ever changes the hamburger icon.
-        menu_buttons = [w for w in _all_widgets(win) if isinstance(w, Gtk.MenuButton)]
-        btn = next((w for w in menu_buttons if w.get_icon_name() == "open-menu-symbolic"), None)
-        if btn is None:
-            btn = next((w for w in menu_buttons if w.has_css_class("popup")), None)
-            if btn is not None:
-                _log("inject_main_menu: hamburger matched via css 'popup' (icon-name drift)")
-        if btn is None:
-            _log(
-                "inject_main_menu: hamburger MenuButton not found "
-                "(no open-menu-symbolic icon, no .popup class)"
-            )
-            return
-        model = btn.get_menu_model()
-        if not isinstance(model, Gio.Menu):
-            _log(
-                f"inject_main_menu: hamburger model not a mutable Gio.Menu "
-                f"({type(model).__name__}) — skipping menu item"
-            )
-            return
-
-        action_name = f"app.{ACTION_PREFS}"
-        # Dedup guard: skip if our entry is already present (protects against a
-        # shared/app-level model or any re-injection path — confirmed not live
-        # today, where each window owns its model, but cheap insurance).
-        if _menu_has_action(model, action_name):
-            return
-        section = Gio.Menu()
-        section.append(MENU_ITEM_LABEL, action_name)
-        # Insert before the last section (Preferences/Help/About). Clamp at 0
-        # in case the menu shape changes and the model is unexpectedly empty.
-        model.insert_section(max(model.get_n_items() - 1, 0), None, section)
-
     def _init_window(self, win: Gtk.Window) -> bool:
         css = Gtk.CssProvider()
         css.load_from_data(_CSS)
@@ -1023,7 +952,6 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
 
             self._inject_sidebar_link(win)
             self._attach_pathbar(win)
-            self._inject_main_menu(win)
             self._on_title_changed(win, None)
             return True
         return False
@@ -1575,21 +1503,6 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
 
         return panel, scroll, grid_box
 
-    def _sort_debug_label(self) -> str:
-        col = self._sort_column
-        rev = self._sort_reverse
-        _labels = {
-            "name": ("A→Z", "Z→A"),
-            "size": ("size ↑", "size ↓"),
-            "type": ("type A→Z", "type Z→A"),
-            "mtime": ("modified newest", "modified oldest"),
-            "atime": ("accessed newest", "accessed oldest"),
-            "btime": ("created newest", "created oldest"),
-            "starred": ("starred first", "starred last"),
-        }
-        pair = _labels.get(col, (col, f"{col} ↓"))
-        return f"Debug: sort {pair[1] if rev else pair[0]}"
-
     def _populate(self, win: Gtk.Window) -> None:
         state = self._windows.get(win)
         if state is None:
@@ -1908,11 +1821,6 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
 
     # ── Callbacks ─────────────────────────────────────────────────────────────
 
-    def _on_refresh(self, _btn) -> None:
-        _refresh(_scan_mounts() + _scan_gio_mounts() + _scan_gio_volumes())
-        _refresh_network_places(on_done=self._repopulate_visible)
-        self._repopulate_visible()
-
     def _on_row_key_pressed(
         self, ctrl, keyval, keycode, state, win: Gtk.Window, row: Gtk.Box
     ) -> bool:
@@ -2153,12 +2061,6 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
             )
         except GLib.Error as e:
             _log(f"format launch failed: {e.message}")
-
-    def _do_open_with(self, nav_uri: str, win: Gtk.Window) -> None:
-        gfile = Gio.File.new_for_uri(nav_uri)
-        dialog = Gtk.AppChooserDialog.new(win, Gtk.DialogFlags.MODAL, gfile)
-        dialog.connect("response", lambda d, _: d.destroy())
-        dialog.present()
 
     def _do_properties(self, nav_uri: str, win: Gtk.Window) -> None:
         uri = nav_uri
