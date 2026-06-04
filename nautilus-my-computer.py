@@ -400,7 +400,6 @@ def _read_dirty_bytes() -> int:
     return dirty + writeback
 
 
-
 def _get_gsettings() -> Gio.Settings | None:
     try:
         return Gio.Settings.new(SCHEMA_ID)
@@ -657,7 +656,6 @@ def _refresh(mounts: list[MountInfo]) -> bool:
     changed = new_data != _disk_data
     _disk_data = new_data
     return changed
-
 
 
 _ZOOM_TO_PX = {"small": 48, "standard": 64, "large": 96, "x-large": 128}
@@ -2335,11 +2333,14 @@ class MyComputerExtension(GObject.GObject, Nautilus.MenuProvider):
         list_row = None
         try:
             row_gtype = GObject.type_from_name("NautilusSidebarRow")
-            list_row = GObject.new(row_gtype, **{
-                "uri": DISKS_URI,
-                "place-type": 1,    # NAUTILUS_SIDEBAR_ROW_BUILT_IN
-                "section-type": 1,  # NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS
-            })
+            list_row = GObject.new(
+                row_gtype,
+                **{
+                    "uri": DISKS_URI,
+                    "place-type": 1,  # NAUTILUS_SIDEBAR_ROW_BUILT_IN
+                    "section-type": 1,  # NAUTILUS_SIDEBAR_SECTION_DEFAULT_LOCATIONS
+                },
+            )
             list_row.set_name("my_computer")
             list_row.set_property("label", _LOCATION_TITLE)
             list_row.set_property("eject-tooltip", _("Unmount"))
